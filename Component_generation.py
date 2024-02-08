@@ -6,20 +6,12 @@ from packaging import version
 required_version = version.parse("1.1.1")
 current_version = version.parse(openai.__version__)
 
-#if current_version < required_version:
-#    raise ValueError(f"Error: OpenAI version {openai.__version__}"
-#                     " is less than the required version 1.1.1")
-#else:
-#    print("OpenAI version is compatible.")
-
-
-#from openai import OpenAI
 from transformers import pipeline
 import warnings
 
 warnings.filterwarnings("ignore")
 
-openai.api_key = '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'
+openai.api_key = '' ### your key
 
 summary_general_prompt_='''Follow my instructions as precisely as possible. Only provide the requested output, nothing more.
 
@@ -288,19 +280,6 @@ This is your task:
 entities_df=pd.read_csv("~/web_archive_collections/arquivo.pt/all_events/expansion_terms/10_event_terms_types2.csv", sep="\t")
 entities_df=entities_df.loc[entities_df["event_label"].notna(),]
 events=list(entities_df["event_label"].unique())
-#events=["2017_London_Bridge_attack"]
-#events.remove("Grenfell_Tower_fire")
-#events.remove("poisoning_of_Sergei_and_Yulia_Skripal")
-#events=["2017_Welsh_local_elections"]
-#events=["70th_British_Academy_Film_Awards"]
-#events=["Grenfell_Tower_fire","2017_London_Bridge_attack"]
-events=["Grenfell_Tower_fire"]
-#events=["2017_London_Bridge_attack"]
-#events=["poisoning_of_Sergei_and_Yulia_Skripal"]
-#events=["2018_United_Kingdom_local_elections"]
-#events=["2020_british_grand_prix"]
-#events=["2017_Catalan_independence_referendum"]
-#events=["Eurovision_Song_Contest_2018"]
 
 
 chatgpt_results=pd.DataFrame(columns=["event","aspect","type", "prompt","answer"])
@@ -334,15 +313,8 @@ def get_json_timeline(timeline_str):
 
 
 
-def chatgpt(prompt_, article_contents):
-	response = openai.Completion.create(
-  	engine="text-davinci-003",  # You may need to check for the latest available engine
-  	#engine="gpt-3.5-turbo-instruct",
-    prompt=prompt_+article_contents,
-    max_tokens=600)
-	return(response.choices[0].text.strip())
 
-def new_chatgpt(prompt_):
+def chatgpt(prompt_):
 	response = openai.Completion.create(
   	engine="gpt-3.5-turbo-instruct",
     prompt=prompt_,
@@ -350,39 +322,10 @@ def new_chatgpt(prompt_):
     max_tokens=600)
 	return(response.choices[0].text.strip())
 
-def new_chatgpt_reduced(prompt_):
-	response = openai.Completion.create(
-  	engine="gpt-3.5-turbo-instruct",
-    prompt=prompt_,
-    
-    max_tokens=500)
-	return(response.choices[0].text.strip())
 
-
-
-def new_chatgpt_(prompt_):
-    client=OpenAI(api_key = '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')
-    completion = client.chat.completions.create(
-    	model="gpt-3.5-turbo",
-    	messages=[
-        {"role": "user", "content": prompt_}
-    ]
-)
-    print(completion.choices[0].message)
-    return completion.choices[0].text.strip()
-
-def timeline_fun_(prompt_):
-    output=new_chatgpt(prompt_)
-    print(output)
-    if "=== Timeline ===" in output and "=== End of Timeline ===" in output:
-        #print(output)
-        return output
-    else:
-        print("timeline didn't work")
-        return timeline_fun(prompt_)
 
 def timeline_fun(prompt_):
-    timeline_str=new_chatgpt(prompt_)
+    timeline_str=chatgpt(prompt_)
     if "=== Timeline ===" in timeline_str:
         timeline_general_number=timeline_str.find("=== Timeline ===")
         timeline_str=timeline_str[timeline_general_number:]
@@ -401,7 +344,7 @@ def timeline_fun(prompt_):
     #return timeline_json
 
 def timeline_fun_reduced(prompt_):
-    timeline_str=new_chatgpt_reduced(prompt_)
+    timeline_str=chatgpt_reduced(prompt_)
     if "=== Timeline ===" in timeline_str:
         timeline_general_number=timeline_str.find("=== Timeline ===")
         timeline_str=timeline_str[timeline_general_number:]
@@ -420,7 +363,7 @@ def timeline_fun_reduced(prompt_):
 
 
 def metadata_fun(prompt_):
-    metadata_str=new_chatgpt(prompt_)
+    metadata_str=chatgpt(prompt_)
     if "=== Metadata ===" in metadata_str:
         metadata_number=metadata_str.find("=== Metadata ===")
         metadata_str=metadata_str[metadata_number:]
@@ -451,16 +394,8 @@ def metadata_fun(prompt_):
 
 
 
-def metadata_fun_(prompt_):
-    output=new_chatgpt(prompt_)
-    if "=== Metadata ===" in output:
-        return output
-    else:
-        print("metadata didn't work")
-        return metadata_fun(prompt_)
-
 def summary_fun(prompt_):
-    output=new_chatgpt(prompt_)
+    output=chatgpt(prompt_)
     if "=== Summary ===" in output:
         return output
     else:
@@ -486,8 +421,7 @@ def get_json(df):
 
 summary_df=pd.DataFrame(columns=["event","aspect","summary"])
 for event in events:
-    print("##########################################################################################")
-    print(event)
+    
     results_dict[event]={}
     title=event.replace("_"," ")
     entities_tmp=entities_df.loc[entities_df["event_label"]==event,]
@@ -503,13 +437,11 @@ for event in events:
         aspects=entities+["when","result","NO-ASPECT","cause"]
 
     aspects_=[x.title() for x in aspects]
-    #aspects=["cause"]
     final_dict={}
     final_dict["Event_Names"]=title
     final_dict[title]={}
     final_dict[title]["Aspects"]=aspects_
-    #aspects=["result"] 
-    #aspects.remove("result")
+    
     all_data=pd.DataFrame()
     for aspect in aspects:
         try:
@@ -551,42 +483,33 @@ for event in events:
             timeline_aspect_prompt=timeline_aspect_prompt_+"\n\nEvent: "+event+"\nAspect: "+aspect+"\n\n=== News Articles ===\n\n"+json_file+"\n\n=== Timeline ==="
             metadata_prompt=metadata_prompt_+"\n\nEvent: "+event+"\n\n=== News Articles ===\n\n"+json_file+"\n"
             summary_aspect_prompt=summary_aspect_prompt_+"\n\nEvent: "+event+"\nAspect: "+aspect+"\n\n=== News Articles ===\n\n"+json_file+"\n\n=== Summary ==="
-            #timeline_answer=new_chatgpt(timeline_aspect_prompt[:min(len(timeline_aspect_prompt),4097)])
-            #timeline_answer=new_chatgpt(timeline_aspect_prompt[:min(len(timeline_aspect_prompt.split(" ")),4097)])
-            #if "=== Timeline ===" in timeline_answer:
-            #    timeline_number=timeline_answer.find("=== Timeline ===")
-            #    timeline_answer=timeline_answer[timeline_number:]
-            #timeline_answer=get_json_timeline(timeline_answer)
-            #print(timeline_answer) 
+            timeline_answer=chatgpt(timeline_aspect_prompt[:min(len(timeline_aspect_prompt.split(" ")),4097)])
+            if "=== Timeline ===" in timeline_answer:
+                timeline_number=timeline_answer.find("=== Timeline ===")
+                timeline_answer=timeline_answer[timeline_number:]
+            timeline_answer=get_json_timeline(timeline_answer)
             
-            #metadata_answer=metadata_fun(metadata_prompt)
             
-            #metadata_answer=metadata_fun(metadata_prompt[:min(len(metadata_prompt.split(" ")),4097)])
-            #if "=== Metadata ===" in metadata_answer:
-            #    metadata_number=metadata_answer.find("=== Metadata ===")
-            #    metadata_answer=metadata_answer[metadata_number:]
-            #metadata_answer=get_metadata_json(metadata_answer)
+            metadata_answer=metadata_fun(metadata_prompt[:min(len(metadata_prompt.split(" ")),4097)])
+            if "=== Metadata ===" in metadata_answer:
+                metadata_number=metadata_answer.find("=== Metadata ===")
+                metadata_answer=metadata_answer[metadata_number:]
+            metadata_answer=get_metadata_json(metadata_answer)
 
 
-            #timeline_answer=timeline_fun(timeline_aspect_prompt)
-            #metadata_answer=metadata_fun(metadata_prompt)
-            #summary_answer=new_chatgpt(summary_aspect_prompt)
+           
             
-            #if "=== Summary ===" in summary_answer:
-            #    summary_number=summary_answer.find("=== Summary ===")
-            #    summary_answer=summary_answer[summary_number:]
+            if "=== Summary ===" in summary_answer:
+                summary_number=summary_answer.find("=== Summary ===")
+                summary_answer=summary_answer[summary_number:]
 
  
-            #results_dict[event][aspect]["timeline"]=timeline_answer
-            #results_dict[event][aspect]["metadata"]=metadata_answer
-            #results_dict[event][aspect]["summary"]=summary_answer
-            #print(timeline_answer)
-            #print(summary_answer)
+            results_dict[event][aspect]["timeline"]=timeline_answer
+            results_dict[event][aspect]["metadata"]=metadata_answer
+            results_dict[event][aspect]["summary"]=summary_answer
+          
             
-            #chatgpt_results=chatgpt_results.append({"event":event,"aspect":aspect,"type":"timeline", "prompt":timeline_aspect_prompt,"answer":timeline_answer},ignore_index=True)
-            #chatgpt_results=chatgpt_results.append({"event":event,"aspect":aspect,"type":"metadata", "prompt":metadata_prompt,"answer":metadata_answer},ignore_index=True)
-            #chatgpt_results=chatgpt_results.append({"event":event,"aspect":aspect,"type":"summary", "prompt":summary_aspect_prompt,"answer":summary_answer},ignore_index=True)
-
+            
 
         except:
             print("Exception for: ", event, aspect)
@@ -617,98 +540,28 @@ for event in events:
     timeline_general_prompt=timeline_general_prompt_+"\n\nEvent: "+event+"\n=== News Articles ===\n\n"+json_file+"\n\n=== Timeline ==="
     metadata_prompt=metadata_prompt_+"\n\nEvent: "+event+"\n\n=== News Articles ===\n\n"+json_file+"\n"
     summary_general_prompt=summary_general_prompt_+"\n\nEvent: "+event+"\n=== News Articles ===\n\n"+json_file+"\n\n=== Summary ==="
-    #timeline_general_answer=new_chatgpt(timeline_general_prompt[:min(len(timeline_general_prompt),4097)])
-    with open("tmp.txt","w") as f:
-        #f.write("***********************\n".join(list(all_data.head(20)["content"]))i)
-        f.write(summary_general_prompt)
-    exit()
-
-
-
-    #timeline_general_answer=new_chatgpt(timeline_general_prompt)
-    #if "=== Timeline ===" in timeline_general_answer:
-    #    timeline_general_number=timeline_general_answer.find("=== Timeline ===")
-    #    timeline_general_answer=timeline_general_answer[timeline_general_number:]
-    #timeline_answer=get_json_timeline(timeline_answer)
+ 
+ 
     try:
         timeline_general_answer=timeline_fun(timeline_general_prompt)           
     except: 
         timeline_general_answer=timeline_fun_reduced(timeline_general_prompt)       
     metadata_general_answer=metadata_fun(metadata_prompt)
                 
-    #metadata_general_answer=new_chatgpt(metadata_prompt)
-    #if "=== Metadata ===" in metadata_general_answer:
-    #    metadata_general_number=metadata_general_answer.find("=== Metadata ===")
-    #    metadata_general_answer=metadata_general_answer[metadata_general_number:]
-    #metadata_general_answer=get_metadata_json(metadata_general_answer)
+    metadata_general_answer=chatgpt(metadata_prompt)
+    if "=== Metadata ===" in metadata_general_answer:
+        metadata_general_number=metadata_general_answer.find("=== Metadata ===")
+        metadata_general_answer=metadata_general_answer[metadata_general_number:]
+    metadata_general_answer=get_metadata_json(metadata_general_answer)
             
-    summary_general_answer=new_chatgpt(summary_general_prompt)
+    summary_general_answer=chatgpt(summary_general_prompt)
     if "=== Summary ===" in summary_general_answer:
         summary_general_number=summary_general_answer.find("=== Summary ===")
         summary_general_answer=summary_general_answer[summary_general_number:]
 
-    #chatgpt_results=chatgpt_results.append({"event":event,"aspect":"general","type":"timeline", "prompt":timeline_general_prompt,"answer":timeline_general_answer},ignore_index=True)
-    #chatgpt_results=chatgpt_results.append({"event":event,"aspect":"general","type":"metadata","prompt":metadata_prompt,"answer":metadata_general_answer},ignore_index=True)
-    #chatgpt_results=chatgpt_results.append({"event":event,"aspect":"general","type":"summary", "prompt":summary_general_prompt,"answer":summary_general_answer},ignore_index=True)
     results_dict[event]["general"]={}
     results_dict[event]["general"]["timeline"]=timeline_general_answer
     results_dict[event]["general"]["metadata"]=metadata_general_answer
     results_dict[event]["general"]["summary"]=summary_general_answer
-label=event+"_chatgpt_result.json"
-with open(label, "w") as file:
-      json.dump(results_dict,file)
-
-#exit()
-
-#with open("8_event_chatgpt_results.json", "w") as file:
-#      json.dump(results_dict,file)
-
-           
-
-#chatgpt_results.to_csv("8_events_chatgpt_results2.csv",sep="\t", index=False)
-
-    #print(chatgpt(summary_prompt, new_article_content2))
-    #response=(chatgpt(summary_prompt, new_article_content2))
-            
-    #general_summary_prompt=prompt_begining+event.replace("_"," ")+summary_prompt_general
-    #general_metadata_prompt=prompt_begining+event.replace("_"," ")+metadata_prompt
-    #general_timeline_prompt=prompt_begining+event.replace("_"," ")+timeline_prompt    
-
-    #final_dict[title]["Global_Ranking"]["Overview"]["Metadata"]=chatgpt(general_metadata_prompt, article_content)
-    #general_summary=chatgpt(general_summary_prompt, new_article_content2)
-    #print(new_article_content2)
-    #print(general_summary)
-    #general_timeline=chatgpt(general_timeline_prompt, new_article_content)
-
-
-    #with open("tmp.txt","w") as f:
-    #            f.write(new_article_content2)
-    #            f.write("\n")
-    #            f.write("************************")
-    #            f.write("\n")
-    #            f.write(event)
-    ##            f.write(aspect)
-    #            f.write("\n")
-    #            f.write(general_timeline)
-    #exit()
-
-    #final_dict[title]["Global_Ranking"]["Overview"]["Summary"]=""
-    #summary_df=summary_df.append({"event":event, "aspect":"general", "summary":general_summary}, ignore_index=True)
-    #tmp_label=event+"_summary"
-    #summary_df.to_pickle(tmp_label)
-    
-    #final_dict[title]["Global_Ranking"]["Timeline"]=chatgpt(general_timeline_prompt, new_article_content)
-
-    #print(final_dict.keys())
-    #print("upper aspect: ")
-    #print(final_dict[]["when"]["upper_aspect"])
-
-    #print(final_dict["2017 London Bridge attack"]["when"]["Document_Ranking"].keys())
-   # print(final_dict["2017 London Bridge attack"]["when"]["Overview"])
-    
-    #print(type(final_dict))
-#    json_label="/home/abdollahi/web_archive_collections/arquivo.pt/all_events/"+event+"2.json"
- #   with open(json_label, "w") as file:
-  #      json.dump(final_dict,file)
-
+         
 
