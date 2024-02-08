@@ -1,15 +1,6 @@
 # ** WA-RAG, an Interactive System for Exploring Event Collections**
 
-Welcome to the GitHub repository for the paper titled 'Can we bring together Manual Curation of Web Archive Collections and Automatic Creation? Requirements, Methods and Challenges'. This repository contains the implementation code for the WA-RAG model and the annotated dataset. Please note that author names and specific details cannot be disclosed due to the anonymous submission.
-
-
-* #### Candidate Generation
-      Given a query entity and using an embedding model, candidate_generation.py creates a set of candidate events.
-* #### Feature Extraction
-      feature_extraction.py returns individual and pair features for candidate events.
-* #### Ranker: 
-      Using training dataset, LTR_training.py trains a ranker which would finally be used on extracted features of candidate events to rank candidates.
-    
+Welcome to the GitHub repository for the paper titled 'Can we bring together Manual Curation of Web Archive Collections and Automatic Creation? Requirements, Methods and Challenges. This repository contains the implementation code for the WA-RAG model and the annotated dataset. Please note that author names and specific details cannot be disclosed due to the anonymous submission.
 
 
 ## Parts of the Repository
@@ -28,4 +19,4 @@ Welcome to the GitHub repository for the paper titled 'Can we bring together Man
 
 * #### data folder
 
-The data folder contains example datasets that can be used to run the scripts in this repository.
+      The data folder contains example datasets that can be used to run the scripts in this repository.
