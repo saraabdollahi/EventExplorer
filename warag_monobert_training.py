@@ -21,18 +21,17 @@ import chardet
 torch.manual_seed(42)
 warnings.filterwarnings("ignore")
 logging.set_verbosity_error()
-all_df=pd.read_pickle("/data/query_aspect_docs")
-data=pd.read_csv("/data/collection.tsv", sep="\t", header=None, names=["col1","col2"])
+all_df=pd.read_csv("./data/query_aspect_docs.tsv", sep="\t")
+data=pd.read_csv("./data/collection.tsv", sep="\t", header=None, names=["col1","col2"])
 data=data.rename(columns={"col1":"doc_id", "col2":"content"})
 all_queries=list(all_df["event"].unique())
-event_terms=pd.read_pickle("/data/event_aspect_terms")
+event_terms=pd.read_csv("./data/event_aspect_terms.tsv", sep="\t")
 event_terms["cnt"]=event_terms["cnt"].astype(int)
 event_terms["rank"]=event_terms.groupby(["event"])["cnt"].rank("first", ascending=False)
 event_terms=event_terms.rename(columns={"event":"eventkg_id"})
-event_ids=pd.read_csv("/data/event_ids.tsv", sep="\t")
+event_ids=pd.read_csv("./data/event_ids.tsv", sep="\t")
 event_ids=event_ids.rename(columns={"label":"event"})
 event_ids["event"]=event_ids["event"].str.lower()
-del event_ids["wikidata_id"]
 event_terms=pd.merge(left=event_terms, right=event_ids, how="left", on="eventkg_id")
 event_terms=event_terms.loc[event_terms["rank"]<11,]
 
@@ -63,6 +62,7 @@ class diversified_ranking(torch.nn.Module):
         return(loss)
 
     def catbert(self,query, content_df, model, bertcat_linear, nugget, term):
+        print("in catbert")
         if term=="":
             new_query=query+" "+nugget
         else:
@@ -109,8 +109,7 @@ class diversified_ranking(torch.nn.Module):
             score=self.bertcat_linear(neg_score)
             neg_tensor=torch.cat((neg_tensor, score), dim=0)
             pos_catbert_results=pos_catbert_results.append({"doc_id":neg_df.iloc[i]["neg_doc"], "score":score.item(), "label":0}, ignore_index=True)
-        neg_df=pos_catbert_results.loc[
-        ["label"]==1,]
+        neg_df=pos_catbert_results.loc[pos_catbert_results["label"]==1,]
         neg_min=np.min(neg_df["score"])
         pos_df=pos_catbert_results.loc[pos_catbert_results["label"]==0,]
         neg_min=np.min(neg_df["score"])
@@ -137,7 +136,7 @@ class diversified_ranking(torch.nn.Module):
         all_pos_neg_results=all_pos_neg_results.to(device)
         return(all_pos_neg_results, all_pos_neg_labels)
 
-t=multi_stage()
+t=diversified_ranking()
 device="cuda" if cuda.is_available() else "cpu"
 t=t.to(device)
 
@@ -153,9 +152,8 @@ def train_iteration(all_queries, bert_model, bertcat_linear, model, optimizer):
     total_loss=total_loss.to(device)
     total_final_stage_loss=0
     
-    all_df=pd.read_pickle("/home/abdollahi/web_archive_collections/query_aspect_docs")
+    all_df=pd.read_csv("./data/query_aspect_docs.tsv", sep="\t")
     all_df=all_df.loc[all_df["aspect"].isin(["where","who","when","cause","result","other"]),]
-    all_queries=random.sample(all_queries,400)
     all_df=all_df.loc[all_df["event"].isin(all_queries),]
     all_df=all_df.loc[all_df["aspect"].notna(),]
     all_df=all_df.rename(columns={"pos_docs":"pos_doc", "neg_docs":"neg_doc"})
@@ -203,17 +201,16 @@ def train_iteration(all_queries, bert_model, bertcat_linear, model, optimizer):
                                 optimizer.step()
                                 final_stage_loss_score=final_stage_loss.detach()
                                 final_stage_loss_score=final_stage_loss_score.to("cpu")
-
         except:
             print("exception for query: ", all_queries[q])
     return (total_final_stage_loss, total_loss)
 
 def main(all_queries):
     optimizer=torch.optim.Adam(t.parameters(),lr=t.LR)
+    print("Epoch zero starts")
     total_final_stage_loss, loss=train_iteration(all_queries, t.bert_model, t.bertcat_linear, t.model, optimizer)
-    for epoch in range(1,max_epoch):
-        bert_scores_df=pd.DataFrame()
-        print("Epoch ",epoch, " starts:")
+    for epoch in range(1,t.max_epoch):
+        print("Epoch ",epoch, " starts")
         total_final_stage_loss, loss=train_iteration(all_queries, t.bert_model, t.bertcat_linear, t.model,optimizer)  
     torch.save(t.state_dict(),"warag_monobert")
 
