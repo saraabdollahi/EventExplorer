@@ -24,9 +24,15 @@ from sklearn.preprocessing import MinMaxScaler
 torch.manual_seed(42)
 import re
 from html import unescape
-
 warnings.filterwarnings("ignore")
 logging.set_verbosity_error()
+
+'''
+This script uses the trained model from the "warag_monobert_training.py" script to rank documents related to an event and its aspects. It employs diversified
+ranking, incorporating measures of text diversity and temporal diversity alongside monoBERT ranking. The script outputs the ranked documents in .tsv files,
+with each file corresponding to an event and its associated aspect pairs. These files are then utilized as inputs for the "component_generation.py" script, which
+generates descriptive components based on the ranked documents.
+'''
 
 all_queries=["great_fire_of_london"]
 entities_df=pd.read_csv("./data/event_aspect_terms.tsv", sep="\t")
