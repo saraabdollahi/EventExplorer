@@ -29,18 +29,12 @@ warnings.filterwarnings("ignore")
 logging.set_verbosity_error()
 
 all_queries=["great_fire_of_london"]
-entities_df=pd.read_csv("/data/event_aspect_terms.tsv", sep="\t")
-def remove_websites(text):
-    # Regular expression pattern to match URLs and specific strings
-    pattern = re.compile(r'https?://\S+|www\.\S+|\.theguardian\.com/politics/\S+')
-    cleaned_text = re.sub(pattern, '', text)
-    return cleaned_text
-
-def clean_html_text(html_text):
-    unescaped_text = unescape(html_text)
-    # Remove HTML tags
-    cleaned_text = re.sub(r'<.*?>', '', unescaped_text)
-    return cleaned_text
+entities_df=pd.read_csv("./data/event_aspect_terms.tsv", sep="\t")
+event_ids=pd.read_csv("./data/event_ids.tsv", sep="\t")
+event_ids=event_ids.rename(columns={"eventkg_id":"event", "label":"event_label"})
+entities_df=pd.merge(left=entities_df, right=event_ids, how="left", on="event")
+entities_df["event_label"]=entities_df["event_label"].str.lower()
+entities_df["event_label"]=entities_df["event_label"].str.replace(" ","_")
 
 class diversified_ranking(torch.nn.Module):
     def __init__(self):
@@ -71,6 +65,7 @@ class diversified_ranking(torch.nn.Module):
             new_query=query
         else:
             new_query=query+" "+entity
+        
         tmp_bert_scores_df=self.catbert(query,new_query, content_df, model, t.bertcat_linear, entity)
         return(tmp_bert_scores_df)
 
@@ -79,7 +74,6 @@ class diversified_ranking(torch.nn.Module):
         tmp_bert_scores_df=pd.DataFrame() 
         content_df["Title"]=content_df["Title"].fillna("")
         content_df["content"]=content_df.apply(lambda row: row.Title+" "+row.Snippet, axis=1)
-        content_df["content"]=content_df.apply(lambda row: row.Title+" "+row.cleaned_snippet, axis=1)
                 
         query_output=self.tokenizer(new_query, return_tensors="pt")
         query_tokens=self.tokenizer(new_query, return_tensors="pt")["input_ids"][0]
@@ -109,7 +103,7 @@ class diversified_ranking(torch.nn.Module):
                 pos_last_hidden_states = tmp_output.last_hidden_state
                 pos_score=(torch.transpose(pos_last_hidden_states[0,0,:], 0, -1))
             score=self.bertcat_linear(pos_score)
-            catbert_results=catbert_results.append({"number":i, "score":score.item(),"title":content_df.iloc[i]["Title"], "date_type":content_df.iloc[i]["date_type"], "date":content_df.iloc[i]["date"],"original_url":content_df.iloc[i]["Original URL"],"archive_url":content_df.iloc[i]["Link to archive"] ,"content":content_df.iloc[i]["Snippet"],"cleaned_snippet":content_df.iloc[i]["cleaned_snippet"], "embedding":doc_embedding}, ignore_index=True)
+            catbert_results=catbert_results.append({"number":i, "score":score.item(),"title":content_df.iloc[i]["Title"], "date_type":content_df.iloc[i]["date_type"], "date":content_df.iloc[i]["date"],"original_url":content_df.iloc[i]["Original URL"],"archive_url":content_df.iloc[i]["Link to archive"] ,"content":content_df.iloc[i]["Snippet"], "embedding":doc_embedding}, ignore_index=True)
         doc_array=np.vstack(document_embeddings)
         dissimilarity_scores=1-cosine_similarity(doc_array, doc_array)
         catbert_t2=datetime.datetime.now()
@@ -141,17 +135,13 @@ class diversified_ranking(torch.nn.Module):
         catbert_results=catbert_results.reset_index(drop=True)
         catbert_results["content_diff_scores"]= catbert_results.apply(lambda row: calculate_similarity(row.name, catbert_results), axis=1)
         catbert_results["date_diff_scores"]= catbert_results.apply(lambda row: calculate_date_diversity(row.name, catbert_results), axis=1)
-        catbert_results["max_similarity"]= catbert_results.apply(lambda row: np.max(row.content_diff_scores), axis=1)
         catbert_results["mean_similarity"]=catbert_results.apply(lambda row: np.mean(row.content_diff_scores), axis=1)
-        catbert_results["max_date_diff"]= catbert_results.apply(lambda row: np.max(row.date_diff_scores), axis=1)
         catbert_results["mean_date_diff"]=catbert_results.apply(lambda row: np.mean(row.date_diff_scores), axis=1)
         catbert_results["ranking_score"]=scaler.fit_transform(catbert_results[["score"]])
-        catbert_results["max_date_diff"]=scaler.fit_transform(catbert_results[["max_date_diff"]])
         catbert_results["mean_date_diff"]=scaler.fit_transform(catbert_results[["mean_date_diff"]])
         catbert_results["final_score1"]=0.7* catbert_results["ranking_score"]+0.15*catbert_results["mean_similarity"]+0.15*catbert_results["mean_date_diff"]
-        catbert_results["final_score2"]=0.7* catbert_results["ranking_score"]+0.15*catbert_results["max_similarity"]+0.15*catbert_results["max_date_diff"]
         query_=query.replace(" ","_")
-        catbert_results.to_csv("/data/events/"+query_+"/"+entity+"_diversified_scores.csv", sep=",", index=False)
+        catbert_results.to_csv("./data/"+query_+"/"+entity+"_diversified_scores.csv", sep=",", index=False)
         return(tmp_bert_scores_df)
 
 
@@ -162,9 +152,6 @@ device="cuda" if cuda.is_available() else "cpu"
 t.eval()
 t=t.to(device)
 
-
-
-
 def ranking(all_queries, bert_model, bertcat_linear, model, bert_scores_df):
     random.shuffle(all_queries)
     device="cuda" if cuda.is_available() else "cpu" 
@@ -172,22 +159,18 @@ def ranking(all_queries, bert_model, bertcat_linear, model, bert_scores_df):
         entities_tmp=entities_df.loc[entities_df["event_label"]==all_queries[q],]
         entities=list(entities_tmp["term"].unique())
         entities=entities+["when","cause","result","event"]
+        entities=["England"]
         for entity in entities:
             try:
-                content_df=pd.read_csv("/data/events/"+all_queries[q]+"/"+entity+"_results.tsv", sep="\t")
-                content_df["cleaned_snippet"]=content_df.apply(lambda row: clean_html_text(row.Snippet), axis=1)
-                content_df["cleaned_snippet"]=content_df.apply(lambda row: remove_websites(row.Snippet), axis=1)
-                content_df["date"]=content_df.apply(lambda row: str(row.Day)+"/"+str(row.Month)+"/"+str(row.Year), axis=1)
-                content_df["year"]=content_df["Year"].astype(int)
-                
+                content_df=pd.read_csv("./data/"+all_queries[q]+"/"+entity+"_results.tsv", sep="\t")
+                content_df=content_df.loc[content_df["Year"].notna(),]
+                content_df["date"]=content_df.apply(lambda row: str(int(row.Day))+"/"+str(row.Month)+"/"+str(int(row.Year)), axis=1)
                 content_df["date_type"]=pd.to_datetime(content_df["date"])
                 content_df["Title"]=content_df["Title"].fillna("")
-                
                 content_df["tmp"]=content_df.apply(lambda row: row.Title+" "+row.Snippet, axis=1)
                 content_df=content_df.sort_values(by="date_type").drop_duplicates("tmp", keep="first")
                 del content_df["tmp"]
                 tmp_bert_scores_df=t.final_stage(content_df, all_queries[q], bert_model, bertcat_linear, model, entity)
-                log_file.flush()
                 bert_scores_df=bert_scores_df.append(tmp_bert_scores_df)
             except:
                 print("exception for: ", all_queries[q], entity)
