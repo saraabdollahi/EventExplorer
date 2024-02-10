@@ -479,4 +479,7 @@ for event in events:
     results_dict[event]["general"]["timeline"]=timeline_general_answer
     results_dict[event]["general"]["metadata"]=metadata_general_answer
     results_dict[event]["general"]["summary"]=summary_general_answer
+    with open("./data/"+event+"/rag_results.json") as f:
+	json.dump(results_dict, f)
          
+
