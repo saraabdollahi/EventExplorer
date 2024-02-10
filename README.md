@@ -5,6 +5,10 @@ Welcome to the GitHub repository for the paper titled 'Can we bring together Man
 
 ## Repository Structure
 
+* #### event_aspect_retrieval.py
+
+      Given a list of events, this script extracts its aspects such as relevant participants,  and locations and ranks them according to the number of links to the event on EventKG.
+
 * #### web_archive_content_preprocessing.py
 
       The scripts for preprocessing exported results from the Portuguese Web Archive (PWA). These scripts detect languages and keep only English data.
