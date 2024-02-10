@@ -11,7 +11,7 @@ Welcome to the GitHub repository for the paper titled 'Can we bring together Man
 
 * #### warag_monobert_training.py
 
-      Fine-tuning BERT on the MS-MARCO event dataset. The training involves reformulated questions using annotated aspects and question templates.
+      Fine-tuning BERT on the MS-MARCO-Event dataset. The training involves reformulated questions using annotated aspects and question templates.
 
 * #### diversified_ranking.py
 
