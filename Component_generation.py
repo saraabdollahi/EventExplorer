@@ -5,10 +5,8 @@ import openai
 from packaging import version
 required_version = version.parse("1.1.1")
 current_version = version.parse(openai.__version__)
-
 from transformers import pipeline
 import warnings
-
 warnings.filterwarnings("ignore")
 
 openai.api_key = '' ### your key
@@ -55,8 +53,6 @@ The 2017 London Bridge attack and the attack on the Borough Market were treated 
 This is your task:
 
 === Event ==='''
-
-
 
 
 summary_aspect_prompt_='''Follow my instructions as precisely as possible. Only provide the requested output, nothing more.
@@ -211,6 +207,7 @@ This is your task:
 
 === Event ==='''
 
+
 timeline_general_prompt_='''Follow my instructions as precisely as possible. Only provide the requested output, nothing more.
 
 I am giving you the name of and event and a JSON list of news articles about the event.
@@ -275,21 +272,20 @@ This is your task:
 
 === Event ==='''
 
-
-
-entities_df=pd.read_csv("~/web_archive_collections/arquivo.pt/all_events/expansion_terms/10_event_terms_types2.csv", sep="\t")
+entities_df=pd.read_csv("./data/event_aspect_terms.tsv", sep="\t")
+event_ids=pd.read_csv("./data/event_ids.tsv", sep="\t")
+event_ids=event_ids.rename(columns={"eventkg_id":"event", "label":"event_label"})
+entities_df=pd.merge(left=entities_df, right=event_ids, how="left", on="event")
 entities_df=entities_df.loc[entities_df["event_label"].notna(),]
+entities_df["event_label"]=entities_df["event_label"].str.lower()
+entities_df["event_label"]=entities_df["event_label"].str.replace(" ","_")
 events=list(entities_df["event_label"].unique())
-
-
 chatgpt_results=pd.DataFrame(columns=["event","aspect","type", "prompt","answer"])
 results_dict={}
-
 
 def get_metadata_json(metadata_str):
     metadata_str = metadata_str.replace("metadata = ", "").replace("=== Metadata ===", "").strip()
     metadata_str = metadata_str[:-1].strip() if metadata_str.endswith(';') else metadata_str
-
     try:
         metadata_json = json.loads(metadata_str)
     except json.JSONDecodeError as e:
@@ -297,12 +293,9 @@ def get_metadata_json(metadata_str):
         return None
     return metadata_json
 
-
 def get_json_timeline(timeline_str):
     timeline_str = timeline_str.replace("=== End of Timeline ===", "").replace("=== Timeline ===", "")
- 
-    timeline_str = timeline_str.strip()
- 
+    timeline_str = timeline_str.strip() 
     try:
         timeline_json = json.loads(timeline_str)
     except json.JSONDecodeError as e:
@@ -310,89 +303,61 @@ def get_json_timeline(timeline_str):
         return None
     return timeline_json
 
-
-
-
-
 def chatgpt(prompt_):
 	response = openai.Completion.create(
   	engine="gpt-3.5-turbo-instruct",
     prompt=prompt_,
-    
     max_tokens=600)
 	return(response.choices[0].text.strip())
 
-
+def chatgpt_reduced(prompt_):
+	response = openai.Completion.create(
+  	engine="gpt-3.5-turbo-instruct",
+    prompt=prompt_,
+    max_tokens=500)
+	return(response.choices[0].text.strip())
 
 def timeline_fun(prompt_):
     timeline_str=chatgpt(prompt_)
     if "=== Timeline ===" in timeline_str:
         timeline_general_number=timeline_str.find("=== Timeline ===")
-        timeline_str=timeline_str[timeline_general_number:]
-    
-    timeline_str = timeline_str.replace("=== End of Timeline ===", "").replace("=== Timeline ===", "")
- 
-    timeline_str = timeline_str.strip()
- 
+        timeline_str=timeline_str[timeline_general_number:]    
+    timeline_str = timeline_str.replace("=== End of Timeline ===", "").replace("=== Timeline ===", "") 
+    timeline_str = timeline_str.strip() 
     try:
         timeline_json = json.loads(timeline_str)
         return timeline_json
     except json.JSONDecodeError as e:
         print("Cannot parse timeline string as JSON: ", timeline_str)
         return timeline_fun(prompt_)
-     #   return None
-    #return timeline_json
 
 def timeline_fun_reduced(prompt_):
     timeline_str=chatgpt_reduced(prompt_)
     if "=== Timeline ===" in timeline_str:
         timeline_general_number=timeline_str.find("=== Timeline ===")
-        timeline_str=timeline_str[timeline_general_number:]
-    
-    timeline_str = timeline_str.replace("=== End of Timeline ===", "").replace("=== Timeline ===", "")
- 
+        timeline_str=timeline_str[timeline_general_number:]    
+    timeline_str = timeline_str.replace("=== End of Timeline ===", "").replace("=== Timeline ===", "") 
     timeline_str = timeline_str.strip()
- 
     try:
         timeline_json = json.loads(timeline_str)
         return timeline_json
     except json.JSONDecodeError as e:
         print("Cannot parse timeline string as JSON: ", timeline_str)
         return timeline_fun_reduced(prompt_)
- 
-
 
 def metadata_fun(prompt_):
     metadata_str=chatgpt(prompt_)
     if "=== Metadata ===" in metadata_str:
         metadata_number=metadata_str.find("=== Metadata ===")
-        metadata_str=metadata_str[metadata_number:]
-    
+        metadata_str=metadata_str[metadata_number:]    
     metadata_str = metadata_str.replace("metadata = ", "").replace("=== Metadata ===", "").strip()
     metadata_str = metadata_str[:-1].strip() if metadata_str.endswith(';') else metadata_str
-
     try:
         metadata_json = json.loads(metadata_str)
         return metadata_json
     except json.JSONDecodeError as e:
         print("Cannot parse metadata string as JSON: ", metadata_str)
         return metadata_fun(prompt_)
-
-
-
-    timeline_str = timeline_str.replace("=== End of Timeline ===", "").replace("=== Timeline ===", "")
- 
-    timeline_str = timeline_str.strip()
- 
-    try:
-        timeline_json = json.loads(timeline_str)
-        return timeline_json
-    except json.JSONDecodeError as e:
-        print("Cannot parse metadata string as JSON: ", timeline_str)
-        return timeline_fun(prompt_)
- 
-
-
 
 def summary_fun(prompt_):
     output=chatgpt(prompt_)
@@ -401,9 +366,6 @@ def summary_fun(prompt_):
     else:
         print("summary didn't work")
         return summary_fun(prompt_)
-
-
-
 
 def get_json(df):
     tmp_dict={}
@@ -416,56 +378,41 @@ def get_json(df):
     return(tmp_dict)
 
 
-
-
-
 summary_df=pd.DataFrame(columns=["event","aspect","summary"])
 for event in events:
-    
     results_dict[event]={}
     title=event.replace("_"," ")
     entities_tmp=entities_df.loc[entities_df["event_label"]==event,]
     entities=list(entities_tmp["term"].unique())
-    try:
-        entities.remove("Middlesex")
-    except:
-        print("Not in the list")
-    #aspects=entities+["when","cause","result","NO-ASPECT"]
-    if "Election" in event or "election" in event or "prix" in event or "Prix" in event or "song" in event or "Song" in event or "Film" in event or "film" in event:
+    if "Election" in event:
         aspects=entities+["when","result","NO-ASPECT"]
     else:
         aspects=entities+["when","result","NO-ASPECT","cause"]
-
     aspects_=[x.title() for x in aspects]
     final_dict={}
     final_dict["Event_Names"]=title
     final_dict[title]={}
     final_dict[title]["Aspects"]=aspects_
-    
     all_data=pd.DataFrame()
     for aspect in aspects:
         try:
             results_dict[event][aspect]={}
             tmp_metadata_dict={}
-            print("*******************************")
-            print("aspect is", aspect)
             if aspect=="NO-ASPECT":
-                address="~/web_archive_collections/arquivo.pt/all_events/"+event+"/event_diversified_scores.csv"
+                address="./data/"+event+"/event_diversified_scores.csv"
             else:
-                address="~/web_archive_collections/arquivo.pt/all_events/"+event+"/"+aspect+"_diversified_scores.csv"
+                address="./data/"+event+"/"+aspect+"_diversified_scores.csv"
             final_dict[title][aspect]={}
             data=pd.read_csv(address, sep=",")
             data["title"]=data["title"].fillna("")
             all_data=all_data.append(data)
-            data["rank"]=data["final_score2"].rank(method="first", ascending=False)
+            data["rank"]=data["final_score1"].rank(method="first", ascending=False)
             data=data.sort_values(by="rank", ascending=True)
             data=data.reset_index(drop=True)
-
             if aspect in ["cause","when","result","NO-ASPECT"]:
-
                 upper_aspect="no upper aspect"
             else:
-                upper_aspect=list(entities_tmp.loc[entities_tmp["term"]==aspect,"type"])[0]
+                upper_aspect=list(entities_tmp.loc[entities_tmp["term"]==aspect,"aspect"])[0]
             final_dict[title][aspect]["upper_aspect"]=upper_aspect
             final_dict[title][aspect]["Document_Ranking"]={}
             final_dict[title][aspect]["Document_Ranking"]["Documents_List"]=list(data.head(20)["title"])
@@ -483,47 +430,26 @@ for event in events:
             timeline_aspect_prompt=timeline_aspect_prompt_+"\n\nEvent: "+event+"\nAspect: "+aspect+"\n\n=== News Articles ===\n\n"+json_file+"\n\n=== Timeline ==="
             metadata_prompt=metadata_prompt_+"\n\nEvent: "+event+"\n\n=== News Articles ===\n\n"+json_file+"\n"
             summary_aspect_prompt=summary_aspect_prompt_+"\n\nEvent: "+event+"\nAspect: "+aspect+"\n\n=== News Articles ===\n\n"+json_file+"\n\n=== Summary ==="
-            timeline_answer=chatgpt(timeline_aspect_prompt[:min(len(timeline_aspect_prompt.split(" ")),4097)])
-            if "=== Timeline ===" in timeline_answer:
-                timeline_number=timeline_answer.find("=== Timeline ===")
-                timeline_answer=timeline_answer[timeline_number:]
-            timeline_answer=get_json_timeline(timeline_answer)
-            
-            
-            metadata_answer=metadata_fun(metadata_prompt[:min(len(metadata_prompt.split(" ")),4097)])
-            if "=== Metadata ===" in metadata_answer:
-                metadata_number=metadata_answer.find("=== Metadata ===")
-                metadata_answer=metadata_answer[metadata_number:]
-            metadata_answer=get_metadata_json(metadata_answer)
-
-
-           
-            
+            timeline_answer=timeline_fun(timeline_aspect_prompt)
+            summary_answer=chatgpt(summary_aspect_prompt)
+            metadata_answer=metadata_fun(metadata_prompt)
             if "=== Summary ===" in summary_answer:
                 summary_number=summary_answer.find("=== Summary ===")
                 summary_answer=summary_answer[summary_number:]
-
- 
             results_dict[event][aspect]["timeline"]=timeline_answer
             results_dict[event][aspect]["metadata"]=metadata_answer
             results_dict[event][aspect]["summary"]=summary_answer
-          
-            
-            
-
         except:
             print("Exception for: ", event, aspect)
 
-    all_data["rank"]=all_data.groupby(["title","content","date","original_url","archive_url"])["final_score2"].rank("first", ascending=False)
+    all_data["rank"]=all_data.groupby(["title","content","date","original_url","archive_url"])["final_score1"].rank("first", ascending=False)
     all_data=all_data.loc[all_data["rank"]==1,]
-        #all_data=all_data[["title","snippet","date","original_url","archive_url","final_score3"]].drop_duplicates()
-    all_data["final_rank"]=all_data["final_score2"].rank(method="first", ascending=False)
+    all_data["final_rank"]=all_data["final_score1"].rank(method="first", ascending=False)
     all_data=all_data.sort_values(by="final_rank", ascending=True)
     all_data=all_data.reset_index(drop=True)
     all_data=all_data.loc[:100,]
     final_dict[title]["Global_Ranking"]={}
     final_dict[title]["Global_Ranking"]["Documents_List"]=list(all_data["title"])
-
     for j in range(all_data.shape[0]):
             final_dict[title]["Global_Ranking"][j+1]={}
             final_dict[title]["Global_Ranking"][j+1]["Title"]=all_data.iloc[j]["title"]
@@ -531,37 +457,26 @@ for event in events:
             final_dict[title]["Global_Ranking"][j+1]["Web Archive URL"]=all_data.iloc[j]["archive_url"]
             final_dict[title]["Global_Ranking"][j+1]["Live Web URL"]=all_data.iloc[j]["original_url"]
             final_dict[title]["Global_Ranking"][j+1]["Date"]=all_data.iloc[j]["date"]
-    
     final_dict[title]["Global_Ranking"]["Overview"]={}
     final_dict[title]["Global_Ranking"]["Timeline"]={}
     json_file=get_json(all_data.head(20))
     json_file=json.dumps(json_file)
-    
     timeline_general_prompt=timeline_general_prompt_+"\n\nEvent: "+event+"\n=== News Articles ===\n\n"+json_file+"\n\n=== Timeline ==="
     metadata_prompt=metadata_prompt_+"\n\nEvent: "+event+"\n\n=== News Articles ===\n\n"+json_file+"\n"
     summary_general_prompt=summary_general_prompt_+"\n\nEvent: "+event+"\n=== News Articles ===\n\n"+json_file+"\n\n=== Summary ==="
- 
- 
     try:
         timeline_general_answer=timeline_fun(timeline_general_prompt)           
     except: 
         timeline_general_answer=timeline_fun_reduced(timeline_general_prompt)       
     metadata_general_answer=metadata_fun(metadata_prompt)
-                
-    metadata_general_answer=chatgpt(metadata_prompt)
-    if "=== Metadata ===" in metadata_general_answer:
-        metadata_general_number=metadata_general_answer.find("=== Metadata ===")
-        metadata_general_answer=metadata_general_answer[metadata_general_number:]
-    metadata_general_answer=get_metadata_json(metadata_general_answer)
-            
+    metadata_general_answer=metadata_fun(metadata_prompt)
     summary_general_answer=chatgpt(summary_general_prompt)
     if "=== Summary ===" in summary_general_answer:
-        summary_general_number=summary_general_answer.find("=== Summary ===")
-        summary_general_answer=summary_general_answer[summary_general_number:]
-
+        summary_number=summary_general_answer.find("=== Summary ===")
+        summary_general_answer=summary_general_answer[summary_number:]
+            
     results_dict[event]["general"]={}
     results_dict[event]["general"]["timeline"]=timeline_general_answer
     results_dict[event]["general"]["metadata"]=metadata_general_answer
     results_dict[event]["general"]["summary"]=summary_general_answer
          
-
