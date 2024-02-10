@@ -9,6 +9,18 @@ from transformers import pipeline
 import warnings
 warnings.filterwarnings("ignore")
 
+
+'''
+This script generates descriptive components for event collections using a diversified set of ranked documents. It creates a JSON file containing descriptive
+ components by employing RAG approach which is utilized to generate prompts based on top-ranked documents, and ChatGPT is used for text generation.
+
+The script processes all aspects of an event and general ranking to create a comprehensive overview of the event. The outputs are stored in a JSON file along
+ with documents to be used in WA-RAG interface.
+'''
+
+
+
+
 openai.api_key = '' ### your key
 
 summary_general_prompt_='''Follow my instructions as precisely as possible. Only provide the requested output, nothing more.
