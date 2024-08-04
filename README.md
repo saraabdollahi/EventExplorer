@@ -1,6 +1,6 @@
-#  WA-RAG, an Interactive System for Exploring Event Collections
+#  EventExplorer, an Interactive System for Exploring Event Collections
 
-Welcome to the GitHub repository for the paper titled 'Can we bring together Manual Curation of Web Archive Collections and Automatic Creation? Requirements, Methods and Challenges. This repository contains the implementation code for the WA-RAG model. Please note that author names and specific details cannot be disclosed due to the anonymous submission.
+Welcome to the GitHub repository for the paper titled 'Can we bring together Manual Curation of Web Archive Collections and Automatic Creation? Requirements, Methods and Challenges. This repository contains the implementation code for the EventExplorer model. Please note that author names and specific details cannot be disclosed due to the anonymous submission.
 
 
 ## Repository Structure
@@ -21,6 +21,6 @@ Welcome to the GitHub repository for the paper titled 'Can we bring together Man
 
       The diversified_ranking script ranks snippets from web archives. It uses a trained ranking model and considers event aspects, text diversity, and temporal diversity. 
 
-* #### data folder
+* #### Data folder
 
       The data folder contains example datasets that can be used to run the scripts in this repository.
