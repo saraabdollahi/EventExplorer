@@ -1,7 +1,7 @@
 #  EventExplorer, an Interactive System for Exploring Event Collections
 
-Welcome to the GitHub repository for the paper titled 'Can we bring together Manual Curation of Web Archive Collections and Automatic Creation? Requirements, Methods and Challenges. This repository contains the implementation code for the EventExplorer model. Please note that author names and specific details cannot be disclosed due to the anonymous submission.
-
+Welcome to the GitHub repository for the paper titled "Retrieval-Augmented Generation of Event Collections from
+Web Archives and the Live Web". This repository contains the implementation code for the EventExplorer model. 
 
 ## Repository Structure
 
