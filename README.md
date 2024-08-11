@@ -13,7 +13,7 @@ Web Archives and the Live Web". This repository contains the implementation code
 
       The scripts for preprocessing exported results from the Portuguese Web Archive (PWA). These scripts detect languages and keep only English data.
 
-* #### warag_monobert_training.py
+* #### eventexplorer_monobert_training.py
 
       Fine-tuning BERT on the MS-MARCO-Event dataset. The training involves reformulated questions using annotated aspects and question templates.
 
