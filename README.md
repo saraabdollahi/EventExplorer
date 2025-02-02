@@ -37,7 +37,7 @@ You can modify this list in the script to include your own events.
 
 * #### web_archive_content_preprocessing.py
 
-  The scripts for preprocessing exported results from the Portuguese Web Archive (PWA). These scripts detect languages and keep only English data.
+  #The scripts for preprocessing exported results from the Portuguese Web Archive (PWA). These scripts detect languages and keep only English data.
   🔹 Input: The raw snippets from web archives for a give event and its aspect (entity), located on:
   ```sh
 ./data/{event}/{entity}.csv
