@@ -20,7 +20,7 @@ pip install -r requirements.txt
 
 ## 📁 Repository Structure
 
-* #### event_aspect_retrieval.py
+#### event_aspect_retrieval.py
 
   Given a list of events, this script extracts its aspects such as relevant participants,  and locations and ranks them according to the number of links to the event on EventKG.
   The output will be stored in a TSV file at:
