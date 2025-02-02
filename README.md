@@ -85,11 +85,11 @@ pip install -r requirements.txt
    ./data/{event}/{entity}_diversified_scores.csv
   ```
 
-  📤 Output:
-    Generated Descriptive Components (saved as JSON) for all the aspects of an event stored at: 
-    ```sh
-    ./data/{event}/rag_results.json 
-    ```
+📤 Output:
+  Generated Descriptive Components (saved as JSON) for all the aspects of an event stored at: 
+  ```sh
+  ./data/{event}/rag_results.json 
+  ```
 
 * #### Data folder
 
