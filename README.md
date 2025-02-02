@@ -3,20 +3,22 @@
 Welcome to the GitHub repository for the paper titled "Retrieval-Augmented Generation of Event Collections from
 Web Archives and the Live Web". This repository contains the implementation code for the EventExplorer model. 
 
-## Repository Structure
+
 
 ## 🚀 Installation Guide
 
 First, clone the repository and navigate into the project folder:
 
 ```sh
-git clone https://github.com/YourUsername/EventExplorer.git
+git clone https://github.com/saraabdollahi/EventExplorer.git
 cd EventExplorer
 ```
 Then make sure you have Python installed. Then install the required packages:
 ```sh
 pip install -r requirements.txt
 ```
+
+## 📁 Repository Structure
 
 * #### event_aspect_retrieval.py
 
