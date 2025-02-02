@@ -20,34 +20,34 @@ pip install -r requirements.txt
 
 ## 📁 Repository Structure
 
-1. #### event_aspect_retrieval.py
+* #### event_aspect_retrieval.py
 
   Given a list of events, this script extracts its aspects such as relevant participants,  and locations and ranks them according to the number of links to the event on EventKG.
 
-📥 Input:
-The script starts with a predefined list of events:
- ```sh
-queries = ["event_662534"]
-```
-You can modify this list in the script to include your own events.
+  📥 Input:
+  The script starts with a predefined list of events:
+   ```sh
+  queries = ["event_662534"]
+  ```
+  You can modify this list in the script to include your own events.
 
-📤 Output:
-A TSV file containing ranked aspects:
-```sh
-./data/event_links_cnts.tsv
-```
+  📤 Output:
+  A .tsv file containing ranked aspects:
+  ```sh
+  ./data/event_links_cnts.tsv
+  ```
 
 * #### web_archive_content_preprocessing.py
 
   The scripts for preprocessing exported results from the Portuguese Web Archive (PWA). These scripts detect languages and keep only English data.
   
   📥 Input: 
-The raw snippets from web archives for a give event and its aspect (entity), located at:
+  The raw snippets from web archives for a give event and its aspect (entity), located at:
   ```sh
   ./data/{event}/{entity}.csv
   ```
   📤 Output: 
-Processed snippets stored as .tsv file at:
+  Processed snippets stored as .tsv file at:
   ```sh
   ./data/{event}/{entity}_results.tsv
   ```
@@ -56,8 +56,8 @@ Processed snippets stored as .tsv file at:
 
   Fine-tuning BERT on the MS-MARCO-Event dataset. The training involves reformulated questions using annotated aspects and question templates.
   
-📤 Output: 
-Trained model (warag_monobert) saved in the current directory after training.
+  📤 Output: 
+  Trained model (warag_monobert) saved in the current directory after training.
 
 * #### diversified_ranking.py
 
@@ -70,11 +70,11 @@ Trained model (warag_monobert) saved in the current directory after training.
    warag_monobert: The trained model from eventexplorer_monobert_training.py
   ```
 
-📤 Output:
-The final rankings for each event and entity (the corresponding aspect):
- ```sh
-./data/{event}/{entity}_diversified_scores.csv.tsv
-```
+  📤 Output:
+  The final rankings for each event and entity (the corresponding aspect):
+  ```sh
+  ./data/{event}/{entity}_diversified_scores.csv.tsv
+  ```
 
 * #### Data folder
 
