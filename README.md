@@ -5,9 +5,12 @@ Web Archives and the Live Web". This repository contains the implementation code
 
 ## Repository Structure
 
-### Installation
-Required dependencies are listed in requirements.txt. Install them using:
-      pip install -r requirements.txt
+Installation & Setup
+### **1️⃣ Install Dependencies**
+Make sure you have Python installed. Then install the required packages:
+```sh
+pip install -r requirements.txt
+
 
 * #### event_aspect_retrieval.py
 
