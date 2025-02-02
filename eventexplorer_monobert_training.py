@@ -212,7 +212,7 @@ def main(all_queries):
     for epoch in range(1,t.max_epoch):
         print("Epoch ",epoch, " starts")
         total_final_stage_loss, loss=train_iteration(all_queries, t.bert_model, t.bertcat_linear, t.model,optimizer)  
-    torch.save(t.state_dict(),"warag_monobert")
+    torch.save(t.state_dict(),"event_explorer_monobert")
 
 
 if __name__=="__main__":
