@@ -57,7 +57,7 @@ pip install -r requirements.txt
   Fine-tuning BERT on the MS-MARCO-Event dataset. The training involves reformulated questions using annotated aspects and question templates.
   
   📤 Output: 
-  Trained model (warag_monobert) saved in the current directory after training.
+  Trained model (event_explorer_monobert) saved in the current directory after training.
 
 * #### diversified_ranking.py
 
@@ -66,7 +66,7 @@ pip install -r requirements.txt
   📥 Input:
   Event-aspect terms used to generate queries related to an event's aspects:
   ```sh
-   warag_monobert: The trained model from eventexplorer_monobert_training.py
+   event_explorer_monobert: The trained model from eventexplorer_monobert_training.py
   ```
 
   📤 Output:
