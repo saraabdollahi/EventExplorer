@@ -49,7 +49,7 @@ pip install -r requirements.txt
   📤 Output: 
   Processed snippets stored as .tsv file at:
   ```sh
-  ./data/{event}/{entity}_results.tsv
+  ./data/{event}/{entity}_PWA_results.tsv
   ```
 
 * #### eventexplorer_monobert_training.py
@@ -66,7 +66,6 @@ pip install -r requirements.txt
   📥 Input:
   Event-aspect terms used to generate queries related to an event's aspects:
   ```sh
-   ./data/event_aspect_terms.ts
    warag_monobert: The trained model from eventexplorer_monobert_training.py
   ```
 
