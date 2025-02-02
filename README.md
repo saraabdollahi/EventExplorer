@@ -5,6 +5,10 @@ Web Archives and the Live Web". This repository contains the implementation code
 
 ## Repository Structure
 
+### Installation
+Required dependencies are listed in requirements.txt. Install them using:
+      pip install -r requirements.txt
+
 * #### event_aspect_retrieval.py
 
       Given a list of events, this script extracts its aspects such as relevant participants,  and locations and ranks them according to the number of links to the event on EventKG.
