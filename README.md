@@ -44,7 +44,7 @@ You can modify this list in the script to include your own events.
   ```
   🔹 Output: Processed snippets stored as .tsv file at:
   ```sh
-./data/{event}/{entity}_results.tsv
+  ./data/{event}/{entity}_results.tsv
   ```
 
 * #### eventexplorer_monobert_training.py
