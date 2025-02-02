@@ -39,13 +39,13 @@ pip install -r requirements.txt
 
 * ####  bing_api_search.py  
 
-This script retrieves search results from Bing for a given event and related entities (aspects), extracting relevant web pages and metadata.  
+  This script retrieves search results from Bing for a given event and related entities (aspects), extracting relevant web pages and metadata.  
 
-📤 Output: 
-  Search results stored as .csv files at:
-  ```sh
-  ./data/{event}/{entity}_bing_results.csv
-  ```
+  📤 Output: 
+    Search results stored as .csv files at:
+    ```sh
+    ./data/{event}/{entity}_bing_results.csv
+    ```
 
 
 * #### web_archive_content_preprocessing.py
