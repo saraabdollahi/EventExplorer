@@ -94,3 +94,19 @@ pip install -r requirements.txt
 * #### Data folder
 
       The data folder contains example datasets that can be used to run the scripts in this repository.
+
+
+
+## 🔑 API Keys Required  
+
+Two scripts in this repository require API keys for execution:  
+
+1. **component_generation.py** – Requires an **OpenAI API key** for generating descriptive components using ChatGPT.  
+   - Define OpenAI API key  directly in the script where needed  
+     
+
+2. **bing_api_search.py** – Requires a **Bing Search API key** to retrieve search results from Bing.  
+   - Specify this key inside the script.  
+
+Make sure you **replace `"your-api-key-here"` with your actual API keys** before running these scripts.  
+
