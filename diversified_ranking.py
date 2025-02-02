@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore")
 logging.set_verbosity_error()
 
 '''
-This script uses the trained model from the "warag_monobert_training.py" script to rank documents related to an event and its aspects. It employs diversified
+This script uses the trained model from the "warag_monobert_training.py" script to rank documents (which are retrieved either from Bing or Portuguese web-archive (PWA)) related to an event and its aspects. It employs diversified
 ranking, incorporating measures of text diversity and temporal diversity alongside monoBERT ranking. The script outputs the ranked documents in .tsv files,
 with each file corresponding to an event and its associated aspect pairs. These files are then utilized as inputs for the "component_generation.py" script, which
 generates descriptive components based on the ranked documents.
@@ -168,7 +168,8 @@ def ranking(all_queries, bert_model, bertcat_linear, model, bert_scores_df):
         entities=["England"]
         for entity in entities:
             try:
-                content_df=pd.read_csv("./data/"+all_queries[q]+"/"+entity+"_results.tsv", sep="\t")
+                content_df=pd.read_csv("./data/"+all_queries[q]+"/"+entity+"_PWA_results.tsv", sep="\t")
+                #content_df=pd.read_csv("./data/"+all_queries[q]+"/"+entity+"_bing_results.tsv", sep="\t")
                 content_df=content_df.loc[content_df["Year"].notna(),]
                 content_df["date"]=content_df.apply(lambda row: str(int(row.Day))+"/"+str(row.Month)+"/"+str(int(row.Year)), axis=1)
                 content_df["date_type"]=pd.to_datetime(content_df["date"])
