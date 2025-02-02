@@ -66,15 +66,15 @@ Trained model (warag_monobert) saved in the current directory after training.
   📥 Input:
   Event-aspect terms used to generate queries related to an event's aspects:
   ```sh
- ./data/event_aspect_terms.ts
- warag_monobert: The trained model from eventexplorer_monobert_training.py
+   ./data/event_aspect_terms.ts
+   warag_monobert: The trained model from eventexplorer_monobert_training.py
   ```
 
 📤 Output:
 The final rankings for each event and entity (the corresponding aspect):
  ```sh
-  ./data/{event}/{entity}_results.tsv
-  ```
+./data/{event}/{entity}_diversified_scores.csv.tsv
+```
 
 * #### Data folder
 
