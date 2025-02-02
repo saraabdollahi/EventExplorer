@@ -27,7 +27,7 @@ pip install -r requirements.txt
   ```sh
 ./data/event_links_cnts.tsv
 ```
-###🔹 Example Input
+🔹 Example Input
   The script starts with a predefined list of events:
  ```sh
 queries = ["event_662534"]
