@@ -10,7 +10,7 @@ Installation & Setup
 Make sure you have Python installed. Then install the required packages:
 ```sh
 pip install -r requirements.txt
-```sh
+```
 
 * #### event_aspect_retrieval.py
 
