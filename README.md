@@ -76,6 +76,21 @@ pip install -r requirements.txt
   ./data/{event}/{entity}_diversified_scores.csv.tsv
   ```
 
+* #### component_generation.py
+  This script generates **descriptive components** for event collections using a **Retrieval-Augmented Generation (RAG) approach**. It utilizes **ChatGPT** to generate summary, metadata and timeline of an event based on top-ranked documents. 
+
+📥 Input:
+  Ranking of documents per event and related entity (aspect) located at:
+  ```sh
+   ./data/{event}/{entity}_diversified_scores.csv
+  ```
+
+  📤 Output:
+    Generated Descriptive Components (saved as JSON) for all the aspects of an event stored at: 
+    ```sh
+    ./data/{event}/rag_results.json 
+    ```
+
 * #### Data folder
 
       The data folder contains example datasets that can be used to run the scripts in this repository.
