@@ -12,7 +12,7 @@ First, clone the repository and navigate into the project folder:
 ```sh
 git clone https://github.com/YourUsername/EventExplorer.git
 cd EventExplorer
-
+```
 Then make sure you have Python installed. Then install the required packages:
 ```sh
 pip install -r requirements.txt
