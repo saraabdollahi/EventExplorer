@@ -21,7 +21,7 @@ The script processes all aspects of an event and general ranking to create a com
 
 
 
-openai.api_key = '' ### your key
+openai.api_key =  "your-api-key-here"
 
 summary_general_prompt_='''Follow my instructions as precisely as possible. Only provide the requested output, nothing more.
 
