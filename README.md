@@ -49,7 +49,15 @@ You can modify this list in the script to include your own events.
 
 * #### eventexplorer_monobert_training.py
 
-      Fine-tuning BERT on the MS-MARCO-Event dataset. The training involves reformulated questions using annotated aspects and question templates.
+  Fine-tuning BERT on the MS-MARCO-Event dataset. The training involves reformulated questions using annotated aspects and question templates.
+  The script saves the trained model after the completing the training process named warag_monobert at the current directory. 
+## Inputs
+- **`./data/event_aspect_terms.tsv`**: This file contains the event-aspect terms used to generate queries related to an event's aspects.
+- **`warag_monobert`**: A pre-trained BERT model used for document ranking. It is fine-tuned to handle event-related queries.
+
+## Outputs
+- **Ranked Document Scores**: The final rankings for each event and entity are output as `.csv` files, stored in the `./data/` directory. Each file contains the ranking scores of documents related to the event-aspect pairs, along with additional features such as content and date diversity scores.
+
 
 * #### diversified_ranking.py
 
