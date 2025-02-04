@@ -120,3 +120,10 @@ Two scripts in this repository require API keys for execution:
 
 Make sure you **replace `"your-api-key-here"` with your actual API keys** before running these scripts.  
 
+# 📧 Contact
+
+Sara Abdollahi ([abdollahi@L3S.de](mailto:abdollahi@L3S.de)) & Simon Gottschalk ([gottschalk@L3S.de](mailto:gottschalk@L3S.de))
+
+# Reference
+
+To be announced.
