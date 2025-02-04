@@ -3,7 +3,7 @@
 Welcome to the GitHub repository for the paper titled "Retrieval-Augmented Generation of Event Collections from
 Web Archives and the Live Web". This repository contains the implementation code for the EventExplorer model. 
 
-
+The code to deploy the EventExplorer website is available in [another GitHub repository](https://github.com/sgottsch/EventExplorerWebsite).
 
 ## 🚀 Installation Guide
 
